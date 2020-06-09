@@ -6,26 +6,33 @@ class Test1 extends React.Component {
         this.state = { audioInputDevices: []}
     }
     componentDidMount() {
-        // this.init()
-        // console.log('mount')
+        this.init()
+        console.log('mount')
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
-        // console.log('update')
+        console.log('update')
+        this.setMedia()
+
     }
 
-    // async init() {
-    //     const devices = await navigator.mediaDevices.enumerateDevices()
-    //     // console.log(devices)
-    //     this.setState(prevState => { audioInputDevices: devices.filter(e => e.kind === 'audioinput'),
-    //     selectedDevice: devices})
-    //     console.log(this.state)
-    // }
+    async init() {
+        const devices = (await navigator.mediaDevices.enumerateDevices())
+        this.setState(prevState => ({ audioInputDevices: devices, selectedDeviceIndex: devices.length > 1 ? 0 : null }))
+    }
+    async setMedia() {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: this.state.audioInputDevices[this.state.selectedDeviceIndex] })
+        // this.audio.srcObject = stream
+        this.video.srcObject = stream
+    }
     render() {
         return <>
-            {/*<select onChange={e => {}>*/}
-            {/*    {this.state.audioInputDevices*/}
-            {/*    .map((e, index) => <option key={ index } value={ index }>{ e.kind }</option>)}*/}
-            {/*</select>*/}
+            <div><video autoPlay width={400} height={300} ref={instance => { this.video = instance }}/></div>
+            {/*<div><audio controls ref={instance => { this.audio = instance }}/></div>*/}
+            <select onChange={e =>
+            {this.setState({selectedDeviceIndex: e.target.value})}}>
+                {this.state.audioInputDevices
+                .map((e, index) => <option key={ index } value={ index }>{ e.kind }</option>)}
+            </select>
         </>
     }
 }
